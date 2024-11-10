@@ -1,49 +1,66 @@
 <template>
-    <div class="flex flex-col gap-1.5">
-        <h2>{{ field.label }}</h2>
-        <!-- <input class="border rounded-md p-2 outline-none" :disabled="field.read_only" /> -->
-        <div class="flex items-center space-x-2" v-for="(option, index) in options" :key="index">
-            <input :id="option.label.toLowerCase()"
-                type="checkbox"
-                class="h-3 w-3 text-primary border border-[#002C77] rounded-sm"
-                :checked="option.checked"
-                @change="option.toggle"
-            />
-            <label :for="option.label.toLowerCase()" class="text-sm text-[#002C77]">{{ option.label }}</label>
+    <div class="flex flex-col gap-2">
+      <label class="text-sm font-medium text-gray-700 dark:text-gray-200">{{ field.label }}</label>
+      <div class="space-y-2">
+        <div v-for="option in options" :key="option.name" class="flex items-center">
+          <input
+            :id="`${field.name}-${option.name}`"
+            :name="field.name"
+            type="radio"
+            :value="option.name"
+            :checked="modelValue === option.name"
+            @change="$emit('update:modelValue', option.name)"
+            :disabled="field.read_only"
+            class="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500 dark:border-gray-600 dark:focus:ring-blue-600"
+          />
+          <label :for="`${field.name}-${option.name}`" class="ml-2 block text-sm text-gray-700 dark:text-gray-200">
+            {{ option.label }}
+          </label>
         </div>
+      </div>
     </div>
-</template>
-<script setup>
-
-import { computed, onMounted, ref, inject, watch } from 'vue';
-const call = inject('$call')
-const props = defineProps({
+  </template>
+  
+  <script setup>
+  import { ref, watch, inject } from 'vue'
+  
+  const props = defineProps({
     field: {
-        type: Object,
-        required: false,
-        default: {},
+      type: Object,
+      required: true
     },
-})
-const options = ref([])
-watch(() => props.field, (value) => {
-    getOptions(value)
-})
-const getOptions = async (value) => {
-    try {
-        console.log("props?.field",value,props?.field);
-        
-        const response = await call('frappe.client.get_list', { 
-            doctype: 'Field Options',
-            filters: props.field?.link_filters ? JSON.parse(props.field?.link_filters) : [],
-            fields:['name','label','code']
-        })
-        options.value = response
-        console.log("options.value",options.value?.length);
-    } catch (error) {
-        console.error(error)
+    modelValue: {
+      type: String,
+      required: true
     }
-}
-// onMounted(() => {
-//     getOptions()
-// })
-</script>
+  })
+  
+  const emit = defineEmits(['update:modelValue'])
+  
+  const call = inject('$call')
+  
+  const options = ref([])
+  
+  const getOptions = async () => {
+    try {
+      let filters = {}
+      if (props.field.link_filters) {
+        try {
+          filters = JSON.parse(props.field.link_filters)
+        } catch (e) {
+          console.error('Invalid link_filters JSON:', e)
+        }
+      }
+      const response = await call('frappe.client.get_list', { 
+        doctype: 'Field Options',
+        filters: filters,
+        fields: ['name', 'label']
+      })
+      options.value = response
+    } catch (err) {
+      console.error('Error fetching options:', err)
+    }
+  }
+  
+  watch(() => props.field, getOptions, { immediate: true })
+  </script>

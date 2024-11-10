@@ -1,87 +1,111 @@
 <template>
-
-
-<div class="md:flex">
-  <ul class="flex-column space-y space-y-4 text-sm font-medium text-gray-500 dark:text-gray-400 md:me-4 mb-4 md:mb-0">
-    <div v-for="(tab, index) in docTypeMeta?.value?.fields" :key="index">
-      <li v-if="tab?.fieldtype === 'Tab Break'">
-          <a
-            href="#"
-            :class="['inline-flex items-center px-4 py-3 rounded-lg w-full', 
-                    (activeTab == tab.name) ? 'text-white bg-blue-700 dark:bg-blue-600' : 'text-gray-500']"
-            :aria-current="(activeTab == tab.name) ? 'page' : undefined"
+  <div class="md:flex bg-white dark:bg-gray-900 rounded-lg shadow-md overflow-hidden">
+    <nav class="md:w-1/4 p-4 bg-gray-50 dark:bg-gray-800">
+      <ul class="space-y-2">
+        <li v-for="tab in tabFields" :key="tab.name">
+          <button
             @click="activeTab = tab.name"
-            >
+            :class="[
+              'w-full text-left px-4 py-2 rounded-lg transition-colors duration-150 ease-in-out',
+              activeTab === tab.name
+                ? 'bg-blue-600 text-white'
+                : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+            ]"
+          >
             {{ tab.label }}
-            
-          </a>
-      </li>
-    </div>
-  </ul>
-  <div class="p-6 bg-gray-50 text-medium text-gray-500 dark:text-gray-400 dark:bg-gray-800 rounded-lg w-full">
-      <div v-for="(field,index) in getFields(activeTab)" :key="index">
-        <h3 v-if="field.fieldtype == 'Section Break'" class="text-lg font-bold text-gray-900 dark:text-white mb-2">{{ field.label }}</h3>
-        <div v-else>
-          <Link v-if="field.fieldtype == 'Link'" :field="field" />
-        </div>
+          </button>
+        </li>
+      </ul>
+    </nav>
+    <div class="flex-1 p-6 bg-white dark:bg-gray-900">
+      <div v-for="field in activeFields" :key="field.name">
+        <h3 v-if="field.fieldtype === 'Section Break'" class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+          {{ field.label }}
+        </h3>
+        <component
+          v-else
+          :is="getFieldComponent(field.fieldtype)"
+          :field="field"
+          v-model="formData[field.name]"
+          class="mb-4"
+        />
       </div>
+    </div>
   </div>
-</div>
-
+  
 </template>
+
 <script setup>
-import { inject, onMounted, reactive, ref, watch } from 'vue'
-import { Button,Input, Link, CheckBox} from './components'
+import { ref, computed, onMounted, inject } from 'vue'
+import Link from './components/Link.vue'
+import Input from './components/Input.vue'
+import CheckBox from './components/CheckBox.vue'
+import Button from './components/Button.vue'
 
 
-const call = inject('$call')
-const docTypeMeta = reactive({})
-const Fields = ref([])
 const props = defineProps({
   doctype: {
     type: String,
-    required: true,
+    required: true
   },
   id: {
     type: String,
-    required: false,
+    default: undefined
   },
   showFormButton: {
     type: Boolean,
-    required: false,
-    default: true,
-  },
+    default: false
+  }
 })
-const activeTab = ref('');
-const isActiveTab = (tab) => {
-  return tab.name === activeTab.value
-}
-const getFields = (tab) => {
-  let fromIndex = docTypeMeta?.value?.fields?.findIndex(f => f.name === tab);
-  if(fromIndex === -1){
-    return []
-  }else{
-    let toIndex = docTypeMeta?.value?.fields?.findIndex((f, index) => index > fromIndex && f.fieldtype === 'Tab Break');
-    if(toIndex === -1){
-      toIndex = docTypeMeta?.value?.fields?.length;
-    }
-    return docTypeMeta?.value?.fields?.slice(fromIndex + 1, toIndex);
+
+const call = inject('$call')
+
+const docTypeMeta = ref(null)
+const activeTab = ref('')
+const formData = ref({})
+
+const tabFields = computed(() => 
+  docTypeMeta.value?.fields.filter(field => field.fieldtype === 'Tab Break') || []
+)
+
+const activeFields = computed(() => {
+  if (!docTypeMeta.value || !activeTab.value) return []
+  
+  const fields = docTypeMeta.value.fields
+  const startIndex = fields.findIndex(f => f.name === activeTab.value)
+  const endIndex = fields.findIndex((f, i) => i > startIndex && f.fieldtype === 'Tab Break')
+  
+  return fields.slice(startIndex + 1, endIndex === -1 ? undefined : endIndex)
+})
+
+const getFieldComponent = (fieldtype) => {
+  switch (fieldtype) {
+    case 'Link': return Link
+    case 'Data': return Input
+    case 'Check': return CheckBox
+    case 'Button': return Button  
+    default: return 'div'
   }
 }
+
 const getMeta = async () => {
-  const res = await call('frappe.desk.form.load.getdoctype',
-    { doctype: props.doctype,with_parent:1 }
-  )
-  if(res?.docs?.[0]){
-    docTypeMeta.value = res?.docs?.[0];
-    activeTab.value = docTypeMeta?.value?.fields?.find(f=> f.fieldtype == 'Tab Break')?.name;
-    console.log("docTypeMeta",docTypeMeta.value,activeTab.value);
+  try {
+    const res = await call('frappe.desk.form.load.getdoctype', {
+      doctype: props.doctype,
+      with_parent: 1
+    })
     
-  }else{
-    console.log('Error in fetching meta data')
+    if (res?.docs?.[0]) {
+      docTypeMeta.value = res.docs[0]
+      activeTab.value = tabFields.value[0]?.name || ''
+    } else {
+      console.error('Error fetching meta data: No document found')
+    }
+  } catch (error) {
+    console.error('Error fetching meta data:', error)
   }
 }
-onMounted(() => {
-  getMeta()
-})
+
+
+onMounted(getMeta)
 </script>
