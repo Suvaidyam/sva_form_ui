@@ -1,24 +1,15 @@
 <template>
     <div class="flex flex-col gap-1.5">
-        <label for="" class="text-sm">{{ label }}</label>
-        <input class="border rounded-md p-2 outline-none" :disabled="disabled" :placeholder="placeholder" />
+        <label for="" class="text-sm">{{ field.label }}</label>
+        <input class="border rounded-md p-2 outline-none" :disabled="field.read_only" :placeholder="placeholder" />
     </div>
 </template>
 <script setup>
 const props = defineProps({
-    label: {
-        type: String,
+    field: {
+        type: Object,
         required: false,
-        default: 'Name',
-    },
-    placeholder: {
-        type: String,
-        required: false,
-    },
-    disabled: {
-        type: Boolean,
-        required: false,
-        default: false,
+        default: {},
     },
 })
 </script>
