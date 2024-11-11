@@ -1,6 +1,6 @@
 <template>
-  <div class="md:flex bg-white dark:bg-gray-900 rounded-lg shadow-md overflow-hidden">
-    <nav class="md:w-1/4 p-4 bg-gray-50 dark:bg-gray-800">
+  <div class="md:flex h-screen bg-white dark:bg-gray-900 rounded-lg shadow-md overflow-hidden">
+    <nav class="md:w-1/6 p-4 bg-gray-50 dark:bg-gray-800">
       <ul class="space-y-2">
         <li v-for="tab in tabFields" :key="tab.name">
           <button
@@ -17,7 +17,7 @@
         </li>
       </ul>
     </nav>
-    <div class="flex-1 p-6 bg-white dark:bg-gray-900">
+    <div class=" p-6 bg-white dark:bg-gray-900">
       <div v-for="field in activeFields" :key="field.name">
         <h3 v-if="field.fieldtype === 'Section Break'" class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
           {{ field.label }}
