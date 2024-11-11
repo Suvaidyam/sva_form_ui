@@ -50,17 +50,14 @@
         } catch (e) {
           console.error('Invalid link_filters JSON:', e)
         }
-      }else{
+      } else {
         filters = { field: props.field.fieldname }
       }
       const response = await call('frappe.client.get_list', { 
         doctype: 'Field Options',
         filters: filters,
-        fields: ['name', 'label'],
-       
-      }
-      
-    )
+        fields: ['name', 'label' ,],
+      })
       options.value = response
     } catch (err) {
       console.error('Error fetching options:', err)

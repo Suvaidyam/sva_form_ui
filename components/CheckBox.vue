@@ -8,7 +8,9 @@
             :name="field.name"
             type="checkbox"
             :value="option.name"
-            class="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500 dark:border-gray-600 dark:focus:ring-blue-600"
+            :checked="modelValue?.includes(option.name)"
+            @change="updateValue(option.name)"
+            class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 dark:border-gray-600 dark:focus:ring-blue-600"
           />
           <label :for="`${field.name}-${option.name}`" class="ml-2 block text-sm text-gray-700 dark:text-gray-200">
             {{ option.label }}
@@ -61,7 +63,16 @@
     }
   }
   
+  const updateValue = (optionName) => {
+    const newValue = [...props.modelValue]
+    const index = newValue.indexOf(optionName)
+    if (index === -1) {
+      newValue.push(optionName)
+    } else {
+      newValue.splice(index, 1)
+    }
+    emit('update:modelValue', newValue)
+  }
   
   watch(() => props.field, getOptions, { immediate: true })
   </script>
-  
