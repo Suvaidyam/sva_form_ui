@@ -82,7 +82,7 @@ const getFieldComponent = (fieldtype) => {
   switch (fieldtype) {
     case 'Link': return Link
     case 'Data': return Input
-    case 'Check': return CheckBox
+    case 'Table MultiSelect': return CheckBox
     case 'Button': return Button  
     default: return 'div'
   }
@@ -94,7 +94,7 @@ const getMeta = async () => {
       doctype: props.doctype,
       with_parent: 1
     })
-    
+    // console.log(res)
     if (res?.docs?.[0]) {
       docTypeMeta.value = res.docs[0]
       activeTab.value = tabFields.value[0]?.name || ''
