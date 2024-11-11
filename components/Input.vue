@@ -7,7 +7,7 @@
         @input="$emit('update:modelValue', $event.target.value)"
         :type="field.fieldtype === 'Password' ? 'password' : 'text'"
         :disabled="field.read_only"
-        class="h-10 px-3 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:bg-gray-800 dark:text-gray-200"
+        class="h-10 px-3 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600"
       />
     </div>
   </template>
