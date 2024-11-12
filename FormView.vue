@@ -131,7 +131,7 @@ const allSections = computed(() => {
       if (currentSection) {
         sections.push(currentSection)
       }
-      currentSection = { label: field.label, fields: [] }
+      currentSection = { label: field.label,collapsible:field.collapsible, fields: [] }
     } else if (currentSection) {
       currentSection.fields.push(field)
     }
