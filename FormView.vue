@@ -60,7 +60,7 @@
                 Next
               </button>
               <button v-if="props.section || isLastTab" type="submit"
-                class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2">
+                class="px-4 py-2 bg-secondary text-white rounded-md hover:bg-primary focus:outline-none">
                 Submit
               </button>
             </div>
@@ -78,7 +78,9 @@ import Input from './components/Input.vue'
 import Link from './components/Link.vue'
 import CheckBox from './components/CheckBox.vue'
 import Button from './components/Button.vue'
+import { useRouter } from 'vue-router'
 
+const router = useRouter()
 const props = defineProps({
   doctype: {
     type: String,
@@ -86,13 +88,19 @@ const props = defineProps({
   },
   sidebar: {
     type: Boolean,
-    default: true,
+    default: false,
     required: true
+  },
+  isRoute: {
+    type: String,
+    default: '',
+    required: false
   },
   section: {
     type: Boolean,
     default: false ,
-    required: true}
+    required: true
+  }
 })
 
 const call = inject('$call')
@@ -203,6 +211,9 @@ const handleSubmit = async () => {
       action: 'Save'
     })
     console.log('Saved:', res)
+    if(res && props.isRoute) {
+      router.push(props.isRoute)
+    }
   } catch (err) {
     console.error('Error saving form:', err)
   }
