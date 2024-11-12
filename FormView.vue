@@ -13,7 +13,7 @@
               <button @click="setActiveTab(tab.name)" :class="[
                 'text-left px-4 py-2 rounded-lg transition-colors duration-150 ease-in-out',
                 activeTab === tab.name
-                  ? 'bg-blue-600 text-white'
+                  ? 'bg-secondary text-white'
                   : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600',
                 props.sidebar ? 'w-full' : 'whitespace-nowrap'
               ]">
@@ -56,7 +56,7 @@
             </div>
             <div class="mt-6 flex justify-end">
               <button v-if="!props.section && !isLastTab" @click="nextTab" type="button"
-                class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 mr-2">
+                class="px-4 py-2 bg-secondary  text-white rounded-md focus:ring-offset-2 mr-2">
                 Next
               </button>
               <button v-if="props.section || isLastTab" type="submit"
@@ -139,7 +139,7 @@ const allSections = computed(() => {
       if (currentSection) {
         sections.push(currentSection)
       }
-      currentSection = { label: field.label, fields: [] }
+      currentSection = { label: field.label,collapsible:field.collapsible, fields: [] }
     } else if (currentSection) {
       currentSection.fields.push(field)
     }

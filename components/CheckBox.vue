@@ -71,7 +71,7 @@ const updateValue = (option) => {
   const newValue = [...props.modelValue]
   const index = newValue.findIndex(item => item.name === option.name)
   if (index === -1) {
-    newValue.push({ ...option })
+    newValue.push({doctype:"Options Child",parentfield:option?.field,parenttype:option?.ref_doctype,field_options:option?.name});
   } else {
     newValue.splice(index, 1)
   }
